@@ -71,21 +71,35 @@ def play_game():
      dealer_hand.append(deal(deck))
      dealer_hand.append(deal(deck))
 
+     if is_bust(hand):
+          convert_ace(hand)
+     if is_bust(dealer_hand):
+          convert_ace(dealer_hand)
+
      print("ディーラー: " + str(dealer_hand[0]) + " ▧ ")
      print("プレイヤー : " + str(hand[0]) + " " + str(hand[1]) + " 合計: " + str(sum(hand)))     
 
      action = input("もう一枚引きますか(y/n):")
      while action == "y":
           hand.append(deal(deck))
-          print("プレイヤー： " + str(sum(hand)))
           if is_bust(hand):
-              time.sleep(1)
-              judge(hand,dealer_hand)
-              break
+               convert_ace(hand)
+               if is_bust(hand):
+                    print("プレイヤー： " + str(sum(hand)))
+                    time.sleep(1)
+                    judge(hand,dealer_hand)
+                    return(hand,dealer_hand)
+               
+          print("プレイヤー： " + str(sum(hand)))
+          action = input("もう一枚引きますか(y/n):")
+
      else:
           while sum(dealer_hand) < 17:
                dealer_hand.append(deal(deck))
                print("ディーラーが引きました")
+               if is_bust(dealer_hand):
+                    convert_ace(dealer_hand)
+                    
           time.sleep(1)
           judge(hand,dealer_hand)
-play_game()
+          return(hand,dealer_hand)
