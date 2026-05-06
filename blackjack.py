@@ -3,10 +3,6 @@ import time
 
 suits = ["♠", "♥", "♦", "♣"]
 deck = []
-
-for suit in suits:
-    for num in range(1,14):
-        deck.append((num,suit))
         
 def is_blackjack(hand):
    return sum(hand) == 21
@@ -61,7 +57,10 @@ def judge(hand,dealer_hand):
     print("プレイヤー： " + str(sum(hand)) + "　ディーラー：　" + str(sum(dealer_hand)))
 
 def start_game():
-
+     deck.clear()
+     for suit in suits:
+          for num in range(1,14):
+               deck.append((num,suit))
      random.shuffle(deck)
      hand = []
      dealer_hand = []

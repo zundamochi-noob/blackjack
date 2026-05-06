@@ -6,6 +6,11 @@ from blackjack import play_game,start_game,deal,deck,judge_result,is_bust
 
 from fastapi.responses import RedirectResponse
 
+import openpyxl
+
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = FastAPI()
 
 current_hand = []
@@ -52,6 +57,10 @@ def stand():
     while sum(current_dealer_hand) < 17:
         current_dealer_hand.append(deal(deck))
     result = judge_result(current_hand, current_dealer_hand)
+    wb = openpyxl.load_workbook("result.xlsx") if os.path.exists("result.xlsx") else openpyxl.Workbook()
+    ws = wb.active
+    ws.append([sum(current_hand), sum(current_dealer_hand), result])
+    wb.save(os.path.join(BASE_DIR, "result.xlsx"))
     return f"""
 <h1>結果</h1>
 <p>プレイヤー: {sum(current_hand)}</p>
