@@ -11,6 +11,8 @@ import openpyxl
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+import requests
+
 app = FastAPI()
 
 current_hand = []
@@ -57,14 +59,27 @@ def stand():
     while sum(current_dealer_hand) < 17:
         current_dealer_hand.append(deal(deck))
     result = judge_result(current_hand, current_dealer_hand)
+
+    prompt = f"ブラックジャックをしています。勝敗点数に応じて短く応援コメントをお願いします。プレイヤーは{sum(current_hand)}点、ディーラーは{sum(current_dealer_hand)}点、勝敗は{result}でした"
+    url = "http://localhost:11434/api/generate"
+    data = {
+        "model": "gemma3:4b",
+        "prompt": prompt,
+        "stream": False
+    }
+    response = requests.post(url, json=data)
+    comment = response.json()["response"]
+    
     wb = openpyxl.load_workbook("result.xlsx") if os.path.exists("result.xlsx") else openpyxl.Workbook()
     ws = wb.active
     ws.append([sum(current_hand), sum(current_dealer_hand), result])
     wb.save(os.path.join(BASE_DIR, "result.xlsx"))
+
     return f"""
 <h1>結果</h1>
 <p>プレイヤー: {sum(current_hand)}</p>
 <p>ディーラー: {sum(current_dealer_hand)}</p>
 <p>{result}</p>
+<p>AIからのコメント: {comment}</p>
 <button onclick="location.href='/game'">もう一度</button>
 """
