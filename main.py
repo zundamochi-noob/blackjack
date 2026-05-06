@@ -2,7 +2,9 @@ from fastapi import FastAPI
 
 from fastapi.responses import HTMLResponse
 
-from blackjack import play_game,start_game,deal,deck,judge_result
+from blackjack import play_game,start_game,deal,deck,judge_result,is_bust
+
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 
@@ -11,7 +13,7 @@ current_dealer_hand = []
 
 @app.get("/")
 def read_root():
-    return {"message": "Hello World"}
+    return RedirectResponse(url="/home")
 
 @app.get("/home", response_class=HTMLResponse)
 def home():
@@ -32,15 +34,18 @@ def game():
 """
 @app.get("/hit", response_class=HTMLResponse)
 def hit():
-    global current_hand
-    current_hand.append(deal(deck))
-    return f"""
+        global current_hand
+        current_hand.append(deal(deck))
+        if is_bust(current_hand):
+            return RedirectResponse(url="/stand")
+        return f"""
 <h1>Blackjack</h1>
 <p>ディーラー: {current_dealer_hand[0]} ▧</p>
 <p>プレイヤー:{current_hand} 合計: {sum(current_hand)}</p>
 <button onclick="location.href='/hit'">もう一枚</button>
 <button onclick="location.href='/stand'">ストップ</button>
 """
+
 @app.get("/stand", response_class=HTMLResponse)
 def stand():
     global current_dealer_hand
